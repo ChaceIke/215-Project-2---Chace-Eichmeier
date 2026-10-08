@@ -21,22 +21,23 @@ private:
   BSTNode* lc;            // Pointer to left child
   BSTNode* rc;            // Pointer to right child
 
-  unsigned int leftIsThread : 1;  // Bit field for whether or not left child is a thread (1 bit)
-  unsigned int rightIsThread : 1; // Bit field for whether or not right child is a thread (1 bit)
+  unsigned int leftThreadFlag : 1;  // Bit field for whether or not left child is a thread (1 bit)
+  unsigned int rightThreadFlag : 1; // Bit field for whether or not right child is a thread (1 bit)
 
 
 public:
   // Two constructors -- with and without initial values
   BSTNode() { 
     lc = rc = NULL;
-    leftIsThread = rightIsThread = 0; // Initialize thread flags to false
+    leftThreadFlag = rightThreadFlag = 1; // Initialize thread flags to true
   }
 
   BSTNode(Key K, E e, BSTNode* l =NULL, BSTNode* r =NULL)
     { 
       k = K; it = e; lc = l; rc = r; 
-      leftIsThread = rightIsThread = 0; // Initialize thread flags to false
-    }
+      leftThreadFlag = (l == NULL) ? 1 : 0; // Set left thread flag based on whether left child is NULL
+      rightThreadFlag = (r == NULL) ? 1 : 0; // Set right thread flag based on whether right child is NULL
+    } 
 
   ~BSTNode() {}             // Destructor
 
@@ -52,6 +53,12 @@ public:
   inline BSTNode* right() const { return rc; }
   void setRight(BinNode<E>* b) { rc = (BSTNode*)b; }
 
+  // Functions to set and return the thread flags
+  bool isLeftThread() const { return leftThreadFlag; }
+  void setLeftThread(bool isThread) { leftThreadFlag = isThread; }
+  bool isRightThread() const { return rightThreadFlag; }
+  void setRightThread(bool isThread) { rightThreadFlag = isThread; }
+
   // Return true if it is a leaf, false otherwise
-  bool isLeaf() { return (lc == NULL) && (rc == NULL); }
+  bool isLeaf() { return leftThreadFlag && rightThreadFlag; } // A node is a leaf if both children are threads
 };
