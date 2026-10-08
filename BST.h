@@ -119,9 +119,33 @@ inserthelp(
     BSTNode<Key, E>* root, const Key& k, const E& it) {
   if (root == NULL)  // Empty tree: create node
     return new BSTNode<Key, E>(k, it, NULL, NULL);
-  if (k < root->key())
-    root->setLeft(inserthelp(root->left(), k, it));
-  else root->setRight(inserthelp(root->right(), k, it));
+  if (k < root->key()) {
+      if (root->isLeftThread()) {
+        BSTNode<Key, E>* newNode = new BSTNode<Key, E>(k, it);
+        newNode->setLeft(root->left()); // Set new node's left pointer to root's left thread
+        root->setLeft(newNode);
+        root->setLeftThread(false); // Set left thread flag to false
+        BSTNode<Key, E>* predecessor = newNode->left();
+        if (predecessor != NULL && predecessor->isRightThread()) {
+            predecessor->setRight(newNode); // Update predecessor's right pointer to new node
+        }
+        return root;
+      }
+      else
+        root->setLeft(inserthelp(root->left(), k, it));
+  } else if (root->isRightThread()) {
+      BSTNode<Key, E>* newNode = new BSTNode<Key, E>(k, it);
+      newNode->setRight(root->right()); // Set new node's right pointer to root's right thread
+      root->setRight(newNode);
+      root->setRightThread(false); // Set right thread flag to false
+      BSTNode<Key, E>* successor = newNode->right();
+      if (successor != NULL && successor->isLeftThread()) {
+          successor->setLeft(newNode); // Update successor's left pointer to new node
+      }
+      return root;
+  } else {
+      root->setRight(inserthelp(root->right(), k, it));
+  }
   return root;       // Return tree with node inserted
 }
 
@@ -197,9 +221,13 @@ template <typename Key, typename E>
 void BST<Key, E>::
 printhelp(BSTNode<Key, E>* root, int level) const {
   if (root == NULL) return;           // Empty tree
-  printhelp(root->left(), level+1);   // Do left subtree
+  if (!root->isLeftThread()) {
+    printhelp(root->left(), level+1);   // Do left subtree
+  }
   for (int i=0; i<level; i++)         // Indent to level
     cout << "  ";
   visit(root);        				  // Print the node
-  printhelp(root->right(), level+1);  // Do right subtree
+  if (!root->isRightThread()) {
+    printhelp(root->right(), level+1);  // Do right subtree
+  }
 }
