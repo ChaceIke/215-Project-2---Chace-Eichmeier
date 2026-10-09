@@ -43,6 +43,9 @@ public:
   //doubly-threaded trees and that is not part of the assignment.
   //~BST() { clearhelp(root); }            // Destructor
 
+  void inOrderPrint() const; // Print the contents of the BST in order
+  void reverseOrder() const; // Print the contents of the BST in reverse order
+
   void clear()   // Reinitialize tree
     { clearhelp(root); root = NULL; nodecount = 0; }
 
@@ -123,6 +126,7 @@ inserthelp(
       if (root->isLeftThread()) {
         BSTNode<Key, E>* newNode = new BSTNode<Key, E>(k, it);
         newNode->setLeft(root->left()); // Set new node's left pointer to root's left thread
+        newNode->setRight(root); // Set new node's right pointer to root
         root->setLeft(newNode);
         root->setLeftThread(false); // Set left thread flag to false
         BSTNode<Key, E>* predecessor = newNode->left();
@@ -136,6 +140,7 @@ inserthelp(
   } else if (root->isRightThread()) {
       BSTNode<Key, E>* newNode = new BSTNode<Key, E>(k, it);
       newNode->setRight(root->right()); // Set new node's right pointer to root's right thread
+      newNode->setLeft(root); // Set new node's left pointer to root
       root->setRight(newNode);
       root->setRightThread(false); // Set right thread flag to false
       BSTNode<Key, E>* successor = newNode->right();
@@ -230,4 +235,57 @@ printhelp(BSTNode<Key, E>* root, int level) const {
   if (!root->isRightThread()) {
     printhelp(root->right(), level+1);  // Do right subtree
   }
+}
+
+template <typename Key, typename E>
+void BST<Key, E>::inOrderPrint() const {
+    if (root == NULL) {
+        cout << "The BST is empty." << endl;
+        return;
+    }
+  
+    // Start from the leftmost node
+    BSTNode<Key, E>* current = root;
+    while (!current->isLeftThread()) {
+        current = current->left();
+    }
+while (current != NULL) {
+    visit(current);
+
+    if (current->isRightThread()) {
+        current = current->right();
+    }
+    else {
+        current = current->right();
+
+        while (!current->isLeftThread()) {
+            current = current->left();
+        }
+    }
+}
+}
+
+template <typename Key, typename E>
+void BST<Key, E>::reverseOrder() const {
+    if (root == NULL) {
+        cout << "The BST is empty." << endl;
+        return;
+    }
+  
+    // Start from the rightmost node
+    BSTNode<Key, E>* current = root;
+    while (!current->isRightThread()) {
+        current = current->right();
+    }
+    while (current != NULL) {
+        visit(current);
+        if (current->isLeftThread()) {
+            current = current->left();
+        } else {
+            current = current->left();
+            while (!current->isRightThread()) {
+                current = current->right();
+            }
+        }
+    }
 }
